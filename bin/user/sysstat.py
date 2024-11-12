@@ -203,7 +203,7 @@ if __name__ == "__main__":
                 'SQLITE_ROOT': 'archive-dev'}},
         'Engine': {
             'Services': {
-                'process_services': 'user.sysstat.SystemStatistics'}},
+                'archive_services': 'user.sysstat.SystemStatistics'}},
     }
 
     # Logged entries are in syslog. View with journalctl --grep=sysstat
