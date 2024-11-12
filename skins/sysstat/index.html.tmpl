@@ -1,13 +1,26 @@
-## sysstats for weewx
+## pmon for weewx - Copyright 2013-2014 Matthew Wall
+## and 2024 Bill Madill
 #errorCatcher Echo
 #encoding UTF-8
-#
-# Placeholder
 ##
 <!DOCTYPE html>
 <html>
   <head>
+    ## Specifying an encoding of UTF-8 is usually safe:
+    <meta charset="UTF-8">
+    <title>System Statistics</title>
+    <style>
+body {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  background-color: #ffffff;
+}	
+    </style>
   </head>
+
   <body>
+    <img src="daysysstat.png" />
+    <img src="weeksysstat.png" />
+    <img src="monthsysstat.png" />
   </body>
 </html>
