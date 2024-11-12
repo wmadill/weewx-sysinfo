@@ -175,7 +175,6 @@ if __name__ == "__main__":
     weeutil.logger.setup('sysstat')
 
     config = {
-        'WEEWX_ROOT': '/home/weewx/weewx-data',
         'Station': {
             'station_type': 'Simulator',
             'altitude': [0, 'foot'],
@@ -200,7 +199,7 @@ if __name__ == "__main__":
         'DatabaseTypes': {
             'SQLite': {
                 'driver': 'weedb.sqlite',
-                'SQLITE_ROOT': 'archive-dev'}},
+                'SQLITE_ROOT': 'archive'}},
         'Engine': {
             'Services': {
                 'archive_services': 'user.sysstat.SystemStatistics'}},
