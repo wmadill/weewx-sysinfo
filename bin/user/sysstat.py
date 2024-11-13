@@ -22,7 +22,7 @@ Add the following to weewx.conf:
 [DataBindings]
     [[sysstat_binding]]
         database = sysstat_sqlite
-        manager = weewx.manager.DayManager
+        manager = weewx.manager.DaySummaryManager
         table_name = archive
         schema = user.sysstat.schema
 
@@ -138,7 +138,7 @@ class SystemStatistics(StdService):
             (size, resident, share, text, lib, data, dt) = mem_tuple
 
         except (ValueError, IOError, KeyError) as e:
-            logerr('memory_info failed: %s' % e)
+            log.error('memory_info failed: %s' % e)
 
         mb = 1024 * 1024
         record['mem_size']  = float(size)     * self.page_size / mb 
