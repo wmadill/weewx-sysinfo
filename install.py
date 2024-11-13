@@ -24,7 +24,7 @@ class SystemStatisticsInstaller(ExtensionInstaller):
                     'sysstat_binding': {
                         'database': 'sysstat_sqlite',
                         'table_name': 'archive',
-                        'manager': 'weewx.manager.Manager',
+                        'manager': 'weewx.manager.DaySummaryManager',
                         'schema': 'user.sysstat.schema'}},
                 'Databases': {
                     'sysstat_sqlite': {
