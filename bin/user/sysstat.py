@@ -50,7 +50,13 @@ from weeutil.weeutil import to_int
 from weewx.engine import StdService
 from weewx.cheetahgenerator import SearchList
 
-VERSION = "0.1"
+# imports for SLE from tk
+import datetime
+from weewx.tags import TimespanBinder
+from weeutil.weeutil import TimeSpan
+## end imports for SLI
+
+VERSION = "0.2"
 
 log = logging.getLogger(__name__)
 
@@ -153,13 +159,48 @@ class SystemStatisticsVariables(SearchList):
     def __init__(self, generator):
         SearchList.__init__(self, generator)
 
+        self.formatter = generator.formatter
+        self.converter = generator.converter
+        self.skin_dict = generator.skin_dict
+
     def version(self):
         return VERSION
 
-    def get_extension_list(self, timespan, db_lookup):
-        """Returns a list of name/value pairs"""
-        return [{'sysstat': self}]
+    def seven_day(self):
+        # Create a TimespanBinder object for the last seven days. First,
+        # calculate the time at midnight, seven days ago. The variable week_dt 
+        # will be an instance of datetime.date.
+        week_dt = datetime.date.fromtimestamp(self.timespan.stop) \
+                  - datetime.timedelta(days=1)
+                  #- datetime.timedelta(weeks=1)
+        # Convert it to unix epoch time:
+        week_ts = time.mktime(week_dt.timetuple())
+        # Form a TimespanBinder object, using the time span we just
+        # calculated:
+        seven_day_stats = TimespanBinder(TimeSpan(week_ts, self.timespan.stop),
+                                         self.db_lookup,
+                                         context='week',
+                                         formatter=self.formatter,
+                                         converter=self.converter,
+                                         skin_dict=self.skin_dict)
+        return seven_day_stats
 
+    def get_extension_list(self, timespan, db_lookup):
+        """Returns a search list extension with two additions.
+
+        Parameters:
+          timespan: An instance of weeutil.weeutil.TimeSpan. This will
+                    hold the start and stop times of the domain of
+                    valid times.
+
+          db_lookup: This is a function that, given a data binding
+                     as its only parameter, will return a database manager
+                     object.
+        """
+        self.timespan = timespan
+        self.db_lookup = db_lookup
+
+        return [{'sys_stat': self}]
 
 # what follows is a basic unit test of this module.  to run the test:
 #
