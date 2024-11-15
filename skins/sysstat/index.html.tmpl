@@ -1,7 +1,8 @@
-## pmon for weewx - Copyright 2013-2014 Matthew Wall
+## sysstat for weewx - Copyright 2013-2014 Matthew Wall
 ## and 2024 Bill Madill
 #errorCatcher Echo
 #encoding UTF-8
+      ##($data_binding='sysstat_binding')
 ##
 <!DOCTYPE html>
 <html>
@@ -19,8 +20,18 @@ body {
   </head>
 
   <body>
+    <p>Version: $sys_stat.version </p>
+    <p>
+      Memory (current rss): $latest.mem_rss
+    </p>
+    <p>
+      Memory (weekly rss): $sys_stat.seven_day.mem_rss.avg
+    </p>
     <img src="daysysstat.png" />
+    <p>Daily memory use</p>
     <img src="weeksysstat.png" />
+    <p>Weekly memory use</p>
     <img src="monthsysstat.png" />
+    <p>Monthly memory use</p>
   </body>
 </html>
