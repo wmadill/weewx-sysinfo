@@ -20,13 +20,98 @@ body {
   </head>
 
   <body>
-    <p>Version: $sys_stat.version </p>
     <p>
-      Memory (current rss): $latest.mem_rss
+      System Statistics Version: $sys_stat.version
+      </br>
+      $SKIN_NAME skin Version: $SKIN_VERSION
     </p>
-    <p>
-      Memory (weekly rss): $sys_stat.seven_day.mem_rss.avg
-    </p>
+    <table>
+      <tr>
+        <th>
+          Memory Type
+        </th>
+        <th>
+          Current
+        </th>
+        <th>
+          Weekly min
+        </th>
+        <th>
+          Weekly max
+        </th>
+        <th>
+          Weekly avg
+        </th>
+      <tr>
+        <td>
+          Size
+        </td>
+        <td>
+#if $sys_stat.seven_day.mem_size.has_data
+          $latest($data_binding='sysstat_binding').mem_size.format("%.2f")
+        </td>
+        <td>
+          $sys_stat.seven_day.mem_size.min.format("%.2f")
+        </td>
+        <td>
+          $sys_stat.seven_day.mem_size.max.format("%.2f")
+        </td>
+        <td>
+          $sys_stat.seven_day.mem_size.avg.format("%.2f")
+        </td>
+#else
+        <td>
+          Memory (weekly size): N/A
+        </td>
+#end if
+      </tr>
+      <tr>
+        <td>
+          RSS
+        </td>
+        <td>
+#if $sys_stat.seven_day.mem_rss.has_data
+          $latest($data_binding='sysstat_binding').mem_rss.format("%.2f")
+        </td>
+        <td>
+          $sys_stat.seven_day.mem_rss.min.format("%.2f")
+        </td>
+        <td>
+          $sys_stat.seven_day.mem_rss.max.format("%.2f")
+        </td>
+        <td>
+          $sys_stat.seven_day.mem_rss.avg.format("%.2f")
+        </td>
+#else
+        <td>
+          Memory (weekly rss): N/A
+        </td>
+#end if
+      </tr>
+      <tr>
+        <td>
+          Share
+        </td>
+        <td>
+#if $sys_stat.seven_day.mem_share.has_data
+          $latest($data_binding='sysstat_binding').mem_share.format("%.2f")
+        </td>
+        <td>
+          $sys_stat.seven_day.mem_share.min.format("%.2f")
+        </td>
+        <td>
+          $sys_stat.seven_day.mem_share.max.format("%.2f")
+        </td>
+        <td>
+          $sys_stat.seven_day.mem_share.avg.format("%.2f")
+        </td>
+#else
+        <td>
+          Memory (weekly share): N/A
+        </td>
+#end if
+      </tr>
+    </table>
     <img src="daysysstat.png" />
     <p>Daily memory use</p>
     <img src="weeksysstat.png" />
