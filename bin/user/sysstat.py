@@ -16,7 +16,6 @@ Add the following to weewx.conf:
 
 [SystemStatistics]
     data_binding = sysstat_binding
-    process = sysstat
     ##FIXME## add all the desired filesystems for sizing
 
 [DataBindings]
@@ -56,7 +55,7 @@ from weewx.tags import TimespanBinder
 from weeutil.weeutil import TimeSpan
 ## end imports for SLI
 
-VERSION = "0.2"
+VERSION = "0.3"
 
 log = logging.getLogger(__name__)
 
@@ -75,18 +74,17 @@ class SystemStatistics(StdService):
         super(SystemStatistics, self).__init__(engine, config_dict)
 
         d = config_dict.get('SystemStatistics', {})
-        self.process = d.get('process', 'weewxd')
         self.max_age = to_int(d.get('max_age', 2592000))
         self.page_size = resource.getpagesize()
 
         # get the database parameters we need to function
-        binding = d.get('data_binding', 'sysstat_binding')
-        self.dbm = self.engine.db_binder.get_manager(data_binding=binding,
+        self.binding = d.get('data_binding', 'sysstat_binding')
+        self.dbm = self.engine.db_binder.get_manager(data_binding=self.binding,
                                                      initialize=True)
 
         # be sure database matches the schema we have
         dbcol = self.dbm.connection.columnsOf(self.dbm.table_name)
-        dbm_dict = weewx.manager.get_manager_dict_from_config(config_dict, binding)
+        dbm_dict = weewx.manager.get_manager_dict_from_config(config_dict, self.binding)
         memcol = [x[0] for x in dbm_dict['schema']]
         if dbcol != memcol:
             raise Exception('sysstat schema mismatch: %s != %s' % (dbcol, memcol))
@@ -162,6 +160,8 @@ class SystemStatisticsVariables(SearchList):
         self.formatter = generator.formatter
         self.converter = generator.converter
         self.skin_dict = generator.skin_dict
+        sd = generator.config_dict.get('SystemStatistics', {})
+        self.binding = sd.get('data_binding', 'sysstat_binding')
 
     def version(self):
         return VERSION
@@ -171,8 +171,7 @@ class SystemStatisticsVariables(SearchList):
         # calculate the time at midnight, seven days ago. The variable week_dt 
         # will be an instance of datetime.date.
         week_dt = datetime.date.fromtimestamp(self.timespan.stop) \
-                  - datetime.timedelta(days=1)
-                  #- datetime.timedelta(weeks=1)
+                  - datetime.timedelta(weeks=1)
         # Convert it to unix epoch time:
         week_ts = time.mktime(week_dt.timetuple())
         # Form a TimespanBinder object, using the time span we just
@@ -180,6 +179,7 @@ class SystemStatisticsVariables(SearchList):
         seven_day_stats = TimespanBinder(TimeSpan(week_ts, self.timespan.stop),
                                          self.db_lookup,
                                          context='week',
+                                         data_binding=self.binding,
                                          formatter=self.formatter,
                                          converter=self.converter,
                                          skin_dict=self.skin_dict)
