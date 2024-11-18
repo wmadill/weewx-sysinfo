@@ -55,7 +55,7 @@ from weewx.tags import TimespanBinder
 from weeutil.weeutil import TimeSpan
 ## end imports for SLI
 
-VERSION = "0.3"
+VERSION = "0.4"
 
 log = logging.getLogger(__name__)
 
@@ -78,13 +78,13 @@ class SystemStatistics(StdService):
         self.page_size = resource.getpagesize()
 
         # get the database parameters we need to function
-        self.binding = d.get('data_binding', 'sysstat_binding')
-        self.dbm = self.engine.db_binder.get_manager(data_binding=self.binding,
+        binding = d.get('data_binding', 'sysstat_binding')
+        self.dbm = self.engine.db_binder.get_manager(data_binding=binding,
                                                      initialize=True)
 
         # be sure database matches the schema we have
         dbcol = self.dbm.connection.columnsOf(self.dbm.table_name)
-        dbm_dict = weewx.manager.get_manager_dict_from_config(config_dict, self.binding)
+        dbm_dict = weewx.manager.get_manager_dict_from_config(config_dict, binding)
         memcol = [x[0] for x in dbm_dict['schema']]
         if dbcol != memcol:
             raise Exception('sysstat schema mismatch: %s != %s' % (dbcol, memcol))
