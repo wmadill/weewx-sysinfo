@@ -2,12 +2,10 @@
 ## and 2024 Bill Madill
 #errorCatcher Echo
 #encoding UTF-8
-      ##($data_binding='sysstat_binding')
 ##
 <!DOCTYPE html>
 <html>
   <head>
-    ## Specifying an encoding of UTF-8 is usually safe:
     <meta charset="UTF-8">
     <title>System Statistics</title>
     <style>
@@ -47,17 +45,17 @@ body {
           Size
         </td>
         <td>
-#if $sys_stat.seven_day.mem_size.has_data
+#if $sys_stat.prevweek.mem_size.has_data
           $latest($data_binding='sysstat_binding').mem_size.format("%.2f")
         </td>
         <td>
-          $sys_stat.seven_day.mem_size.min.format("%.2f")
+          $sys_stat.prevweek.mem_size.min.format("%.2f")
         </td>
         <td>
-          $sys_stat.seven_day.mem_size.max.format("%.2f")
+          $sys_stat.prevweek.mem_size.max.format("%.2f")
         </td>
         <td>
-          $sys_stat.seven_day.mem_size.avg.format("%.2f")
+          $sys_stat.prevweek.mem_size.avg.format("%.2f")
         </td>
 #else
         <td>
@@ -70,17 +68,17 @@ body {
           RSS
         </td>
         <td>
-#if $sys_stat.seven_day.mem_rss.has_data
+#if $sys_stat.prevweek.mem_rss.has_data
           $latest($data_binding='sysstat_binding').mem_rss.format("%.2f")
         </td>
         <td>
-          $sys_stat.seven_day.mem_rss.min.format("%.2f")
+          $sys_stat.prevweek.mem_rss.min.format("%.2f")
         </td>
         <td>
-          $sys_stat.seven_day.mem_rss.max.format("%.2f")
+          $sys_stat.prevweek.mem_rss.max.format("%.2f")
         </td>
         <td>
-          $sys_stat.seven_day.mem_rss.avg.format("%.2f")
+          $sys_stat.prevweek.mem_rss.avg.format("%.2f")
         </td>
 #else
         <td>
@@ -93,17 +91,17 @@ body {
           Share
         </td>
         <td>
-#if $sys_stat.seven_day.mem_share.has_data
+#if $sys_stat.prevweek.mem_share.has_data
           $latest($data_binding='sysstat_binding').mem_share.format("%.2f")
         </td>
         <td>
-          $sys_stat.seven_day.mem_share.min.format("%.2f")
+          $sys_stat.prevweek.mem_share.min.format("%.2f")
         </td>
         <td>
-          $sys_stat.seven_day.mem_share.max.format("%.2f")
+          $sys_stat.prevweek.mem_share.max.format("%.2f")
         </td>
         <td>
-          $sys_stat.seven_day.mem_share.avg.format("%.2f")
+          $sys_stat.prevweek.mem_share.avg.format("%.2f")
         </td>
 #else
         <td>
