@@ -1,9 +1,7 @@
 # Copyright 2013-2013 Matthew Wall
 # Further copyright 2024 Bill Madill
 
-#### THIS IS BEING WRITTEN AND EVERYTHING IN IT IS
-#### NOT TO BE RELIED ON!
-"""weewx module that records process information.
+"""weewx module that records computer and WeeWX information.
 
 Installation
 
@@ -35,27 +33,22 @@ Add the following to weewx.conf:
         archive_services = ..., user.sysstat.SystemStatistics
 """
 
-### Try commenting each of these out to see what is really used...
 import logging
 import os
-# import re
 import time
 import resource
 
-# import weewx
 import weedb
 import weewx.manager
 from weeutil.weeutil import to_int
 from weewx.engine import StdService
 from weewx.cheetahgenerator import SearchList
 
-# imports for SLE from tk
 import datetime
 from weewx.tags import TimespanBinder
 from weeutil.weeutil import TimeSpan
-## end imports for SLI
 
-VERSION = "0.4"
+VERSION = "0.5"
 
 log = logging.getLogger(__name__)
 
@@ -161,42 +154,43 @@ class SystemStatisticsVariables(SearchList):
         self.converter = generator.converter
         self.skin_dict = generator.skin_dict
         sd = generator.config_dict.get('SystemStatistics', {})
-        self.binding = sd.get('data_binding', 'sysstat_binding')
+        ##FIXME## check if binding defined!
+        self.binding = sd.get('data_binding', '')
 
     def version(self):
         return VERSION
 
-    def seven_day(self):
+    def prevday(self):
+        return self.getvals(1)
+
+    def prevweek(self):
+        return self.getvals(7)
+    
+    def prevmonth(self):
+        return self.getvals(30)
+    
+    def prevyear(self):
+        return self.getvals(365)
+    
+    def getvals(self, numdays):
         # Create a TimespanBinder object for the last seven days. First,
         # calculate the time at midnight, seven days ago. The variable week_dt 
         # will be an instance of datetime.date.
-        week_dt = datetime.date.fromtimestamp(self.timespan.stop) \
-                  - datetime.timedelta(weeks=1)
+        days_dt = datetime.date.fromtimestamp(self.timespan.stop) \
+                  - datetime.timedelta(days = numdays)
         # Convert it to unix epoch time:
-        week_ts = time.mktime(week_dt.timetuple())
+        days_ts = time.mktime(days_dt.timetuple())
         # Form a TimespanBinder object, using the time span we just
         # calculated:
-        seven_day_stats = TimespanBinder(TimeSpan(week_ts, self.timespan.stop),
+        return TimespanBinder(TimeSpan(days_ts, self.timespan.stop),
                                          self.db_lookup,
                                          context='week',
                                          data_binding=self.binding,
                                          formatter=self.formatter,
                                          converter=self.converter,
                                          skin_dict=self.skin_dict)
-        return seven_day_stats
 
     def get_extension_list(self, timespan, db_lookup):
-        """Returns a search list extension with two additions.
-
-        Parameters:
-          timespan: An instance of weeutil.weeutil.TimeSpan. This will
-                    hold the start and stop times of the domain of
-                    valid times.
-
-          db_lookup: This is a function that, given a data binding
-                     as its only parameter, will return a database manager
-                     object.
-        """
         self.timespan = timespan
         self.db_lookup = db_lookup
 
