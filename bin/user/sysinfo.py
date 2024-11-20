@@ -7,30 +7,45 @@ Installation
 
 Put this file in the bin/user directory.
 
+Prerequisites
+On a Raspberry Pi, the CPU temperature is retrieved using the
+"vcgencmd" program installed with the Raspberry Pi OS. In order to
+use the program, the user running weewxd has to be in the video 
+group.
+
+Check to see if the user is already in the video group by
+entering at the command line:
+  groups
+
+If not, add the user by entering:
+  sudo usermod -aG video <username>
+
+If the program cannot be found or weewx is running on different
+hardware, CPU temp and perhaps other information will not be
+available.
 
 Configuration
 
 Add the following to weewx.conf:
 
-[SystemStatistics]
-    data_binding = sysstat_binding
-    ##FIXME## add all the desired filesystems for sizing
+[SystemInfo]
+    data_binding = sysinfo_binding
 
 [DataBindings]
-    [[sysstat_binding]]
-        database = sysstat_sqlite
+    [[sysinfo_binding]]
+        database = sysinfo_sqlite
         manager = weewx.manager.DaySummaryManager
         table_name = archive
-        schema = user.sysstat.schema
+        schema = user.sysinfo.schema
 
 [Databases]
-    [[sysstat_sqlite]]
-        database_name = sysstat.sdb
+    [[sysinfo_sqlite]]
+        database_name = sysinfo.sdb
         database_type = SQLite
 
 [Engine]
     [[Services]]
-        archive_services = ..., user.sysstat.SystemStatistics
+        archive_services = ..., user.sysinfo.SystemInfo
 """
 
 import logging
@@ -48,7 +63,7 @@ import datetime
 from weewx.tags import TimespanBinder
 from weeutil.weeutil import TimeSpan
 
-VERSION = "0.5"
+VERSION = "0.6"
 
 log = logging.getLogger(__name__)
 
@@ -61,17 +76,17 @@ schema = [
     ('mem_share', 'INTEGER'),
 ]
 
-class SystemStatistics(StdService):
+class SystemInfo(StdService):
 
     def __init__(self, engine, config_dict):
-        super(SystemStatistics, self).__init__(engine, config_dict)
+        super(SystemInfo, self).__init__(engine, config_dict)
 
-        d = config_dict.get('SystemStatistics', {})
+        d = config_dict.get('SystemInfo', {})
         self.max_age = to_int(d.get('max_age', 2592000))
         self.page_size = resource.getpagesize()
 
         # get the database parameters we need to function
-        binding = d.get('data_binding', 'sysstat_binding')
+        binding = d.get('data_binding', 'sysinfo_binding')
         self.dbm = self.engine.db_binder.get_manager(data_binding=binding,
                                                      initialize=True)
 
@@ -80,8 +95,12 @@ class SystemStatistics(StdService):
         dbm_dict = weewx.manager.get_manager_dict_from_config(config_dict, binding)
         memcol = [x[0] for x in dbm_dict['schema']]
         if dbcol != memcol:
-            raise Exception('sysstat schema mismatch: %s != %s' % (dbcol, memcol))
+            raise Exception('sysinfo schema mismatch: %s != %s' % (dbcol, memcol))
 
+        ##FIXME##
+        # Check is /usr/bin/vcgeninfo is executable and if not, log
+        # a debug message and set something to ensure it's values are
+        #run
         self.last_ts = None
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
 
@@ -142,9 +161,18 @@ class SystemStatistics(StdService):
         record['mem_rss']   = float(resident) * self.page_size / mb
         record['mem_share'] = float(share)    * self.page_size / mb
 
+        ##FIXME##
+        # If vcgeninfo available:
+        # vcgencmd  get_config total_mem     (total memory)
+        # vcgencmd  get_mem arm     (arm-addressable memory)
+        # vcgencmd  get_mem gpu     (gpu-addressable  memory)
+        # vcgencmd throttling status (log if not zero)
+        # vcgencmd measure_temp      (current CPU temp)
+        # vcgencmd measure_volts core/sdram_c/sdram_i/sdram_p (?)
+
         return record
 
-class SystemStatisticsVariables(SearchList):
+class SystemInfoTags(SearchList):
     """Bind memory varialbes to database records"""
 
     def __init__(self, generator):
@@ -153,7 +181,7 @@ class SystemStatisticsVariables(SearchList):
         self.formatter = generator.formatter
         self.converter = generator.converter
         self.skin_dict = generator.skin_dict
-        sd = generator.config_dict.get('SystemStatistics', {})
+        sd = generator.config_dict.get('SystemInfo', {})
         ##FIXME## check if binding defined!
         self.binding = sd.get('data_binding', '')
 
@@ -194,12 +222,12 @@ class SystemStatisticsVariables(SearchList):
         self.timespan = timespan
         self.db_lookup = db_lookup
 
-        return [{'sys_stat': self}]
+        return [{'sysinfo': self}]
 
 # what follows is a basic unit test of this module.  to run the test:
 #
 # cd ~/weewx-data
-# PYTHONPATH=bin python bin/user/sysstat.py
+# PYTHONPATH=bin python bin/user/sysinfo.py
 #
 if __name__ == "__main__":
     from weewx.engine import StdEngine
@@ -207,7 +235,7 @@ if __name__ == "__main__":
     import weewx
 
     weewx.debug = 1
-    weeutil.logger.setup('sysstat')
+    weeutil.logger.setup('sysinfo')
 
     config = {
         'Station': {
@@ -218,18 +246,18 @@ if __name__ == "__main__":
         'Simulator': {
             'driver': 'weewx.drivers.simulator',
             'mode': 'simulator'},
-        'SystemStatistics': {
-            'data_binding': 'sysstat_binding',
-            'process': 'sysstat'},
+        'SystemInfo': {
+            'data_binding': 'sysinfo_binding',
+            'process': 'sysinfo'},
         'DataBindings': {
-            'sysstat_binding': {
-                'database': 'sysstat_sqlite',
+            'sysinfo_binding': {
+                'database': 'sysinfo_sqlite',
                 'manager': 'weewx.manager.DaySummaryManager',
                 'table_name': 'archive',
-                'schema': 'user.sysstat.schema'}},
+                'schema': 'user.sysinfo.schema'}},
         'Databases': {
-            'sysstat_sqlite': {
-                'database_name': 'sysstat.sdb',
+            'sysinfo_sqlite': {
+                'database_name': 'sysinfo.sdb',
                 'database_type': 'SQLite'}},
         'DatabaseTypes': {
             'SQLite': {
@@ -237,13 +265,13 @@ if __name__ == "__main__":
                 'SQLITE_ROOT': 'archive'}},
         'Engine': {
             'Services': {
-                'archive_services': 'user.sysstat.SystemStatistics'}},
+                'archive_services': 'user.sysinfo.SystemInfo'}},
     }
 
-    # Logged entries are in syslog. View with journalctl --grep=sysstat
+    # Logged entries are in syslog. View with journalctl --grep=sysinfo
 
     eng = StdEngine(config)
-    svc = SystemStatistics(eng, config)
+    svc = SystemInfo(eng, config)
 
     nowts = lastts = int(time.time())
 

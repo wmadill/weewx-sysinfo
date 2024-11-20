@@ -1,4 +1,4 @@
-## sysstat for weewx - Copyright 2013-2014 Matthew Wall
+## sysinfo for weewx - Copyright 2013-2014 Matthew Wall
 ## and 2024 Bill Madill
 #errorCatcher Echo
 #encoding UTF-8
@@ -7,7 +7,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>System Statistics</title>
+    <title>System Info</title>
     <style>
 body {
   font-family: Verdana, Arial, Helvetica, sans-serif;
@@ -19,7 +19,7 @@ body {
 
   <body>
     <p>
-      System Statistics Version: $sys_stat.version
+      System Info Version: $sysinfo.version
       </br>
       $SKIN_NAME skin Version: $SKIN_VERSION
     </p>
@@ -45,17 +45,17 @@ body {
           Size
         </td>
         <td>
-#if $sys_stat.prevweek.mem_size.has_data
-          $latest($data_binding='sysstat_binding').mem_size.format("%.2f")
+#if $sysinfo.prevweek.mem_size.has_data
+          $latest($data_binding='sysinfo_binding').mem_size.format("%.2f")
         </td>
         <td>
-          $sys_stat.prevweek.mem_size.min.format("%.2f")
+          $sysinfo.prevweek.mem_size.min.format("%.2f")
         </td>
         <td>
-          $sys_stat.prevweek.mem_size.max.format("%.2f")
+          $sysinfo.prevweek.mem_size.max.format("%.2f")
         </td>
         <td>
-          $sys_stat.prevweek.mem_size.avg.format("%.2f")
+          $sysinfo.prevweek.mem_size.avg.format("%.2f")
         </td>
 #else
         <td>
@@ -68,17 +68,17 @@ body {
           RSS
         </td>
         <td>
-#if $sys_stat.prevweek.mem_rss.has_data
-          $latest($data_binding='sysstat_binding').mem_rss.format("%.2f")
+#if $sysinfo.prevweek.mem_rss.has_data
+          $latest($data_binding='sysinfo_binding').mem_rss.format("%.2f")
         </td>
         <td>
-          $sys_stat.prevweek.mem_rss.min.format("%.2f")
+          $sysinfo.prevweek.mem_rss.min.format("%.2f")
         </td>
         <td>
-          $sys_stat.prevweek.mem_rss.max.format("%.2f")
+          $sysinfo.prevweek.mem_rss.max.format("%.2f")
         </td>
         <td>
-          $sys_stat.prevweek.mem_rss.avg.format("%.2f")
+          $sysinfo.prevweek.mem_rss.avg.format("%.2f")
         </td>
 #else
         <td>
@@ -91,17 +91,17 @@ body {
           Share
         </td>
         <td>
-#if $sys_stat.prevweek.mem_share.has_data
-          $latest($data_binding='sysstat_binding').mem_share.format("%.2f")
+#if $sysinfo.prevweek.mem_share.has_data
+          $latest($data_binding='sysinfo_binding').mem_share.format("%.2f")
         </td>
         <td>
-          $sys_stat.prevweek.mem_share.min.format("%.2f")
+          $sysinfo.prevweek.mem_share.min.format("%.2f")
         </td>
         <td>
-          $sys_stat.prevweek.mem_share.max.format("%.2f")
+          $sysinfo.prevweek.mem_share.max.format("%.2f")
         </td>
         <td>
-          $sys_stat.prevweek.mem_share.avg.format("%.2f")
+          $sysinfo.prevweek.mem_share.avg.format("%.2f")
         </td>
 #else
         <td>
@@ -110,11 +110,11 @@ body {
 #end if
       </tr>
     </table>
-    <img src="daysysstat.png" />
+    <img src="daysysinfo.png" />
     <p>Daily memory use</p>
-    <img src="weeksysstat.png" />
+    <img src="weeksysinfo.png" />
     <p>Weekly memory use</p>
-    <img src="monthsysstat.png" />
+    <img src="monthsysinfo.png" />
     <p>Monthly memory use</p>
   </body>
 </html>

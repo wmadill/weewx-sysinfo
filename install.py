@@ -1,40 +1,38 @@
-# installer for sysstat
-# Copyright 2014-2024 Matthew Wall and 2024 Bill Madill
+# Installer for sysinfo
+# Copyright 2024 Bill Madill
 
 from weecfg.extension import ExtensionInstaller
 
 def loader():
-    return SystemStatisticsInstaller()
+    return SystemInfoInstaller()
 
-
-class SystemStatisticsInstaller(ExtensionInstaller):
+class SystemInfoInstaller(ExtensionInstaller):
     def __init__(self):
-        super(SystemStatisticsInstaller, self).__init__(
-            version="0.1",
-            name='sysstat',
-            description='Collect and display system statistics.',
+        super(SystemInfoInstaller, self).__init__(
+            version="0.2",
+            name='sysinfo',
+            description='Collect and display system information.',
             author="Bill Madill",
             author_email="wm@wmadill.com",
-            archive_services='user.sysstat.SystemStatistics',
+            archive_services='user.sysinfo.SystemInfo',
             config={
-                'SystemStatistics': {
-                    'data_binding': 'sysstat_binding',
-                    'process': 'weewxd'},
+                'SystemInfo': {
+                    'data_binding': 'sysinfo_binding'},
                 'DataBindings': {
-                    'sysstat_binding': {
-                        'database': 'sysstat_sqlite',
+                    'sysinfo_binding': {
+                        'database': 'sysinfo_sqlite',
                         'table_name': 'archive',
                         'manager': 'weewx.manager.DaySummaryManager',
-                        'schema': 'user.sysstat.schema'}},
+                        'schema': 'user.sysinfo.schema'}},
                 'Databases': {
-                    'sysstat_sqlite': {
-                        'database_name': 'sysstat.sdb',
+                    'sysinfo_sqlite': {
+                        'database_name': 'sysinfo.sdb',
                         'driver': 'weedb.sqlite'}},
                 'StdReport': {
-                    'sysstat': {
-                        'skin': 'sysstat',
-                        'HTML_ROOT': 'sysstat'}}},
-            files=[('bin/user', ['bin/user/sysstat.py']),
-                   ('skins/sysstat', ['skins/sysstat/skin.conf',
-                                   'skins/sysstat/index.html.tmpl'])]
+                    'sysinfo': {
+                        'skin': 'sysinfo',
+                        'HTML_ROOT': 'sysinfo'}}},
+            files=[('bin/user', ['bin/user/sysinfo.py']),
+                   ('skins/sysinfo', ['skins/sysinfo/skin.conf',
+                                   'skins/sysinfo/index.html.tmpl'])]
         )
