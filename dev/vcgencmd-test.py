@@ -1,3 +1,4 @@
+# Video Core General Command Service 
 PROG = "vcgencmd"
 TESTED_DATE = "Aug 30 2024 19:17:39"
 
@@ -14,54 +15,41 @@ path = shutil.which("uname")
 if path is None:
   print("log.error: cannot find 'uname'. Not running Linux")
   sys.exit()
-print("uname is at %s" % path)
 
-cmd = [path]
-cmd.extend(["-s"])
+cmd = [path, "-s", "-v"]
 vcmd = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 output = vcmd.stdout.decode()
-print(output)
-if output.find("Linux") >= 0:
-    print("Running Linux")
-else:
+# print(output)
+
+# Make sure this is running Linux ...
+if output.find("Linux") < 0:
     print("not running Linux; skipping")
     sys.exit()
 
-# Make sure running Debia
-cmd = [path]
-cmd.extend(["-v"])
-vcmd = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-output = vcmd.stdout.decode()
-print(output)
-if output.find("Debian") >= 0:
-    print("Running Debian")
-else:
+# and Debian ...
+if output.find("Debian") < 0:
     print("Not running Debian")
     sys.exit()
 
 # on a Raspberry Pi
-
-# cat /proc/cpuinfo | grep "Raspberry Pi" returns something
 cmd = ["/usr/bin/grep", "Model", "/proc/cpuinfo"]
 vcmd = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 output = vcmd.stdout.decode()
-print("Model: %s" % output)
-sys.exit()
-cmd = ["cat"]
-cmd.extend(["/proc/cpuinfo"])
-vcmd = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-output = vcmd.stdout.decode()
-print(output)
-re.search
+# output is something like
+# "Model\t\t: Raspberry Pi 4 Model 0 Rev 1.5"
+splits = output.split(':')
+# print(splits)
+# Model info in right-hand split
+model = splits[1].strip()
+print("Model: %s" % model)
 
-# Look for PROG
-# I can't get it to throw an exception but leaving this here
-# to be safe
-try:
-    path = shutil.which(PROG)
-except e:
-    print("log.error: cannot find %s. %s" % (PROG, e))
+# Confirm it is Raspberry Pi
+if not model.startswith("Raspberry Pi"):
+    print("not an rPi")
     sys.exit()
+
+# Look for vcgencmd
+path = shutil.which(PROG)
 
 if path is None:
     print("log.error: No path to %s" % PROG)
@@ -70,7 +58,6 @@ else:
     print("log.debug: path: %s" % path)
 
 cmd = [path, "commands"]
-print (cmd)
 vcmd = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 output = vcmd.stdout.decode()
 if output.find("Can't open device file") >= 0:
@@ -110,7 +97,6 @@ if (current_version_dt < tested_dt):
 elif (current_version_dt > tested_dt):
     print("log.debug: current version vcgencmd is newer than tested version")
 
-#sys.exit()
 
 # Create dictionary of desired values
 
@@ -122,12 +108,6 @@ elif (current_version_dt > tested_dt):
 # grep "Model name" for chip model, "Model" for model version, "Vendor ID" for 
 #  chip design
 # grep L1d: , L1i, (multiply by 4 or say each core has this), L2
-
-# rpi model
-cmd = ["/usr/bin/grep", "Model", "/proc/cpuinfo"]
-x = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-output = x.stdout.decode()
-print("Model: %s" % output)
 
 # run expeiment with /proc numbers, free -m, and mem_size etc
 # grep /proc/meminfo (in 1K)
