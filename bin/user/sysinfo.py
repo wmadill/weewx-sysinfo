@@ -47,6 +47,9 @@ Add the following to weewx.conf:
     [[Services]]
         archive_services = ..., user.sysinfo.SystemInfo
 """
+# import sys
+import shutil
+import subprocess
 
 import logging
 import os
@@ -172,6 +175,48 @@ class SystemInfo(StdService):
 
         return record
 
+# Gather OS information
+class OSInfo:
+    def __init__(self):
+        # Validate OS
+        # Note: this only supports Debian so this code is overly picky but
+        # it would be convenient place to support other OSes
+
+        self.os_name = None
+        self.os_version = None
+        self.os_codename = None
+
+        path = shutil.which("uname")
+        if path is None:
+            # print("log.error: cannot find 'uname'. Not running Linux")
+            return None
+
+        cmd = [path, "-s", "-v"]
+        vcmd = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        output = vcmd.stdout.decode()
+
+        # Make sure this is running Linux ...
+        ##FIXME##
+        # Get name of os from uname output
+        if output.find("Linux") < 0:
+            # print("not running Linux; skipping")
+            # sel.os_name = whatever was in uname output
+            return None
+
+        # and Debian ...
+        if output.find("Debian") < 0:
+            print("Not running Debian")
+            sys.exit()
+
+        self.os_name = "this is the os name"
+        self.os_version = "this is the os version"
+        self.os_codename = "this is the os code name"
+
+class CPUInfo:
+    def __init__(self):
+        self.cpu_type = "this is the CPU type"
+        self.cpu_model = "this is the CPU model"
+
 class SystemInfoTags(SearchList):
     """Bind memory varialbes to database records"""
 
@@ -185,8 +230,11 @@ class SystemInfoTags(SearchList):
         ##FIXME## check if binding defined!
         self.binding = sd.get('data_binding', '')
 
-    def version(self):
-        return VERSION
+    def osinfo(self):
+        return OSInfo()
+
+    def cpuinfo(self):
+        return CPUInfo()
 
     def prevday(self):
         return self.getvals(1)
@@ -222,7 +270,21 @@ class SystemInfoTags(SearchList):
         self.timespan = timespan
         self.db_lookup = db_lookup
 
-        return [{'sysinfo': self}]
+
+        # Gather data
+
+        # Set static values
+        self.version = VERSION
+        self.cpu_type = "CPU type goes here"
+        self.cpu_model = "CPU model goes here"
+
+        # Set rPi values
+
+        #### TEST ####
+        self.cpu_type_test = "cpu_type_test value"
+
+        search_list_extension = {'sysinfo': self}
+        return [search_list_extension]
 
 # what follows is a basic unit test of this module.  to run the test:
 #
