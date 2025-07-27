@@ -219,11 +219,37 @@ class OSInfo:
             print('os_version fail')
             sys.exit()
 
-
+# Gather CPU information
 class CPUInfo:
     def __init__(self):
-        self.cpu_type = "this is the CPU type"
-        self.cpu_model = "this is the CPU model"
+        self.cpu_type = None
+
+        cmd = ['/usr/bin/grep', 'Model', '/proc/cpuinfo']
+        vcmd = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        output = vcmd.stdout.decode()
+        # output is something like
+        # "Model\t\t: Raspberry Pi 4 Model 0 Rev 1.5"
+        splits = output.split(':')
+        # print(splits)
+        # CPU info in right-hand split
+        cpu_info = splits[1].strip()
+
+        # Confirm it is Raspberry Pi
+        if not cpu_info.startswith('Raspberry Pi'):
+            print("not an rPi")
+            sys.exit()
+
+        cpu_parts = cpu_info.partition('Model')
+        if cpu_parts[1] == '':
+            # log some error
+            self.cpu_type = cpu_info
+            self.cpu_model = ''
+        else:
+            self.cpu_type = cpu_parts[0]
+            self.cpu_model = cpu_parts[1] + cpu_parts[2]
+
+        # Total memory
+        # SD card size
 
 class SystemInfoTags(SearchList):
     """Bind memory varialbes to database records"""
