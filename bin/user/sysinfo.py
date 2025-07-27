@@ -1,3 +1,4 @@
+#
 # Copyright 2013-2013 Matthew Wall
 # Further copyright 2024 Bill Madill
 
@@ -186,31 +187,38 @@ class OSInfo:
         self.os_version = None
         self.os_codename = None
 
-        path = shutil.which("uname")
-        if path is None:
-            # print("log.error: cannot find 'uname'. Not running Linux")
-            return None
+        ###FIXME###
+        # This is pretty primitive--later lines with same keyword will overwrite
+        # the earlier ones. I need to decide if this is a real problem.
+        #
+        # Also need to test the file not found error and make sure it gets
+        # handled so running on a non-Linux system will know what happened.
+        # Maybe stuff an error in to the os_* variables.
+        #
+        # One more thing: want to display the specific dotted release number which is
+        # in /etc/debian_version
+        try:
+            with open('/etc/os-release', 'r') as fp:
+                lines = fp.readlines()
+                for line in lines:
+                    [key, val] = line.split('=', 1)
+                    val = val.strip()
+                    if key == 'NAME':
+                        self.os_name = val.strip('"')
+                    elif key == 'VERSION_CODENAME':
+                        self.os_codename = val
 
-        cmd = [path, "-s", "-v"]
-        vcmd = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = vcmd.stdout.decode()
-
-        # Make sure this is running Linux ...
-        ##FIXME##
-        # Get name of os from uname output
-        if output.find("Linux") < 0:
-            # print("not running Linux; skipping")
-            # sel.os_name = whatever was in uname output
-            return None
-
-        # and Debian ...
-        if output.find("Debian") < 0:
-            print("Not running Debian")
+        except FileNotFoundError:
+            print('os-release fail')
             sys.exit()
 
-        self.os_name = "this is the os name"
-        self.os_version = "this is the os version"
-        self.os_codename = "this is the os code name"
+        try:
+            with open('/etc/debian_version', 'r') as fp:
+                self.os_version = fp.read().strip()
+        except FileNotFoundError:
+            print('os_version fail')
+            sys.exit()
+
 
 class CPUInfo:
     def __init__(self):
