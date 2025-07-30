@@ -176,17 +176,41 @@ class SystemInfo(StdService):
 
         return record
 
-# Gather OS information
-class OSInfo:
+# Gather hardware information
+class HWInfo:
     def __init__(self):
         # Validate OS
         # Note: this only supports Debian so this code is overly picky but
         # it would be convenient place to support other OSes
 
-        self.os_name = None
-        self.os_version = None
-        self.os_codename = None
+        self.hw_model = None
+        self.cpu_model = None
+        self.cpu_num_cores = None
+        self.ram_size = None
+        self.sdcard_size = None
 
+
+        cmd = ['/usr/bin/grep', 'Model', '/proc/cpuinfo']
+        vcmd = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        output = vcmd.stdout.decode()
+        # output is something like
+        # "Model\t\t: Raspberry Pi 4 Model 0 Rev 1.5"
+        splits = output.split(':')
+        self.hw_model = splits[1].strip()
+
+        # Confirm it is Raspberry Pi
+        if not self.hw_model.startswith('Raspberry Pi'):
+            print("not an rPi")
+            sys.exit()
+
+
+        # Total memory
+        # SD card size
+
+
+# Gather software information
+class SWInfo:
+    def __init__(self):
         ###FIXME###
         # This is pretty primitive--later lines with same keyword will overwrite
         # the earlier ones. I need to decide if this is a real problem.
@@ -218,38 +242,6 @@ class OSInfo:
         except FileNotFoundError:
             print('os_version fail')
             sys.exit()
-
-# Gather CPU information
-class CPUInfo:
-    def __init__(self):
-        self.cpu_type = None
-
-        cmd = ['/usr/bin/grep', 'Model', '/proc/cpuinfo']
-        vcmd = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = vcmd.stdout.decode()
-        # output is something like
-        # "Model\t\t: Raspberry Pi 4 Model 0 Rev 1.5"
-        splits = output.split(':')
-        # print(splits)
-        # CPU info in right-hand split
-        cpu_info = splits[1].strip()
-
-        # Confirm it is Raspberry Pi
-        if not cpu_info.startswith('Raspberry Pi'):
-            print("not an rPi")
-            sys.exit()
-
-        cpu_parts = cpu_info.partition('Model')
-        if cpu_parts[1] == '':
-            # log some error
-            self.cpu_type = cpu_info
-            self.cpu_model = ''
-        else:
-            self.cpu_type = cpu_parts[0]
-            self.cpu_model = cpu_parts[1] + cpu_parts[2]
-
-        # Total memory
-        # SD card size
 
 class SystemInfoTags(SearchList):
     """Bind memory varialbes to database records"""
