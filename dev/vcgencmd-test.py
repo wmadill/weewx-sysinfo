@@ -10,28 +10,49 @@ import os
 import resource
 import re
 
-# Make sure running Linux
-path = shutil.which("uname")
-if path is None:
-  print("log.error: cannot find 'uname'. Not running Linux")
-  sys.exit()
+import platform
+print('architecture: %s' % str(platform.architecture()))
+print('machine: %s' % str(platform.machine()))
+print('platform: %s' % str(platform.platform()))
+# print('processor: %s' % str(platform.processor()))
+print('release: %s' % str(platform.release()))
+print('version: %s' % str(platform.version()))
+print('uname: %s' % str(platform.uname()))
+print('system_alias: %s' % str(platform.system_alias()))
+sys.exit()
 
-cmd = [path, "-s", "-v"]
-vcmd = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-output = vcmd.stdout.decode()
-# print(output)
+os_name = None
+os_version = None
+os_codename = None
+try:
+    with open('/etc/os-release', 'r') as fp:
+        lines = fp.readlines()
+        for line in lines:
+            [key, val] = line.split('=', 1)
+            val = val.strip()
+            if key == 'NAME':
+                os_name = val.strip('"')
+            elif key == 'VERSION_CODENAME':
+                os_codename = val
 
-# Make sure this is running Linux ...
-if output.find("Linux") < 0:
-    print("not running Linux; skipping")
+except FileNotFoundError:
+    print('os-release fail')
     sys.exit()
 
-# and Debian ...
-if output.find("Debian") < 0:
-    print("Not running Debian")
+try:
+    with open('/etc/debian_version', 'r') as fp:
+        os_version = fp.read().strip()
+except FileNotFoundError:
+    print('os_version fail')
     sys.exit()
 
-# on a Raspberry Pi
+print('name: %s' % os_name)
+print('version: %s' % os_version)
+print('codename: %s' % os_codename)
+
+sys.exit()
+
+# Raspberry Pi info
 cmd = ["/usr/bin/grep", "Model", "/proc/cpuinfo"]
 vcmd = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 output = vcmd.stdout.decode()
