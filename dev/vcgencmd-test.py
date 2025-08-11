@@ -11,15 +11,16 @@ import resource
 import re
 
 import platform
+
+
 print('architecture: %s' % str(platform.architecture()))
 print('machine: %s' % str(platform.machine()))
 print('platform: %s' % str(platform.platform()))
-# print('processor: %s' % str(platform.processor()))
+print('processor: %s' % str(platform.processor()))
 print('release: %s' % str(platform.release()))
 print('version: %s' % str(platform.version()))
-print('uname: %s' % str(platform.uname()))
-print('system_alias: %s' % str(platform.system_alias()))
-sys.exit()
+#print('uname: %s' % str(platform.uname()))
+#print('system_alias: %s' % str(platform.system_alias()))
 
 os_name = None
 os_version = None
@@ -49,8 +50,6 @@ except FileNotFoundError:
 print('name: %s' % os_name)
 print('version: %s' % os_version)
 print('codename: %s' % os_codename)
-
-sys.exit()
 
 # Raspberry Pi info
 cmd = ["/usr/bin/grep", "Model", "/proc/cpuinfo"]
@@ -102,7 +101,7 @@ print("log.debug: processing vcgencmds")
 
 # Convert the date-time line of the tested version of vcgencmd to datetime
 tested_dt = datetime.datetime.strptime(TESTED_DATE, "%b %d %Y %H:%M:%S")
-#print("tested_dt: %s" % tested_dt)
+print("tested_dt: %s" % tested_dt)
 
 # Get the same from the current version
 cmd = [path, "version"]
@@ -111,7 +110,7 @@ output = vcmd.stdout.decode()
 lines = output.splitlines()
 first_line = lines[0].strip()
 current_version_dt = datetime.datetime.strptime(first_line, "%b %d %Y %H:%M:%S")
-#print("current_version_dt: %s" % current_version_dt)
+print("current_version_dt: %s" % current_version_dt)
 
 if (current_version_dt < tested_dt):
     print("log.warning: current version vcgencmd is older than tested version")
