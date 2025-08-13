@@ -154,9 +154,36 @@ mem_resident = float(resident) * x
 print("Mem resident: %s" % mem_resident)
 mem_share = float(share) * x
 print("Mem share: %s" % mem_share)
+
+# free --mega
+cmd = ["/usr/bin/free", "--mega"]
+vcmd = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+output = vcmd.stdout.decode()
+lines = output.splitlines()
+first_line = lines[1].strip()
+print(first_line)
+
+first_line = output.splitlines()[1].strip()
+print(first_line)
 sys.exit()
 
-# free --kibi
+
+splits = first_line.split(':')
+vals = splits[1].strip()
+print("free vals: %s" % vals)
+val_splits = vals.split()
+total = val_splits[0].strip()
+#(total, used, free, shared, buff, avail) = vals
+print("free output: %s" % total)
+sys.exit()
+
+lines = output.splitlines()
+first_line = lines[0].strip()
+cmd = [path, "version"]
+vcmd = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+output = vcmd.stdout.decode()
+lines = output.splitlines()
+first_line = lines[0].strip()
 
 
 
