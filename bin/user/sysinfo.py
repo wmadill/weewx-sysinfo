@@ -176,19 +176,17 @@ class SystemInfo(StdService):
 
         return record
 
-# Gather hardware information
-class HWInfo:
+# Gather CPU  information
+class CPUInfo:
     def __init__(self):
         # Validate OS
         # Note: this only supports Debian so this code is overly picky but
         # it would be convenient place to support other OSes
 
-        self.hw_model = None
+        self.cpu_type = None
         self.cpu_model = None
-        self.cpu_num_cores = None
         self.ram_size = None
-        self.sdcard_size = None
-
+        self.storage_size = None
 
         cmd = ['/usr/bin/grep', 'Model', '/proc/cpuinfo']
         vcmd = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -196,31 +194,47 @@ class HWInfo:
         # output is something like
         # "Model\t\t: Raspberry Pi 4 Model 0 Rev 1.5"
         splits = output.split(':')
-        self.hw_model = splits[1].strip()
+        cpu_info = splits[1].strip()
 
         # Confirm it is Raspberry Pi
-        if not self.hw_model.startswith('Raspberry Pi'):
+        if not cpu_info.startswith('Raspberry Pi'):
             print("not an rPi")
             sys.exit()
 
+        cpu_parts = cpu_info.partition('Model')
+        if cpu_parts[1] == '':
+            # log some error
+            self.cpu_type = cpu_info
+            self.cpu_model = ''
+        else:
+            self.cpu_type = cpu_parts[0]
+            self.cpu_model = cpu_parts[1] + cpu_parts[2]
 
+        ###FIXME###
         # Total memory
         # SD card size
 
 
 # Gather software information
-class SWInfo:
+class OSInfo:
     def __init__(self):
+        # Validate OS
+        # Note: this only supports Debian so this code is overly picky but
+        # it would be convenient place to support other OSes
+        
+        self.os_name = None
+        self.os_codename = None
+        self.os_version = None
+
         ###FIXME###
-        # This is pretty primitive--later lines with same keyword will overwrite
-        # the earlier ones. I need to decide if this is a real problem.
+        # This is pretty primitive--later lines in /etc/os-release with the same
+        # keyword will overwrite the earlier ones. I need to decide if this is a
+        # real problem.
         #
         # Also need to test the file not found error and make sure it gets
         # handled so running on a non-Linux system will know what happened.
         # Maybe stuff an error in to the os_* variables.
-        #
-        # One more thing: want to display the specific dotted release number which is
-        # in /etc/debian_version
+         
         try:
             with open('/etc/os-release', 'r') as fp:
                 lines = fp.readlines()
@@ -296,21 +310,14 @@ class SystemInfoTags(SearchList):
         self.timespan = timespan
         self.db_lookup = db_lookup
 
-
-        # Gather data
-
         # Set static values
         self.version = VERSION
-        self.cpu_type = "CPU type goes here"
-        self.cpu_model = "CPU model goes here"
-
-        # Set rPi values
-
-        #### TEST ####
-        self.cpu_type_test = "cpu_type_test value"
 
         search_list_extension = {'sysinfo': self}
         return [search_list_extension]
+
+###FIXME###
+# This does not work!
 
 # what follows is a basic unit test of this module.  to run the test:
 #
