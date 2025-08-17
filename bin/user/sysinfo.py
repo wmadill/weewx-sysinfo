@@ -176,15 +176,18 @@ class SystemInfo(StdService):
 
         return record
 
-# Gather CPU  information
-class CPUInfo:
+# Gather HW information
+class HWInfo:
     def __init__(self):
         # Validate OS
         # Note: this only supports Debian so this code is overly picky but
         # it would be convenient place to support other OSes
 
-        self.cpu_type = None
-        self.cpu_model = None
+        ###FIXME###
+        # The terminology of hw_type/hw_model is suspect
+        # Check how /proc/cpuinfo is populated for possible claification
+        self.hw_type = None
+        self.hw_model = None
         self.ram_size = None
         self.storage_size = None
 
@@ -194,26 +197,27 @@ class CPUInfo:
         # output is something like
         # "Model\t\t: Raspberry Pi 4 Model 0 Rev 1.5"
         splits = output.split(':')
-        cpu_info = splits[1].strip()
+        hw_info = splits[1].strip()
 
         # Confirm it is Raspberry Pi
-        if not cpu_info.startswith('Raspberry Pi'):
+        if not hw_info.startswith('Raspberry Pi'):
             print("not an rPi")
             sys.exit()
 
-        cpu_parts = cpu_info.partition('Model')
-        if cpu_parts[1] == '':
+        hw_parts = hw_info.partition('Model')
+        if hw_parts[1] == '':
             # log some error
-            self.cpu_type = cpu_info
-            self.cpu_model = ''
+            self.hw_type = hw_info
+            self.hw_model = ''
         else:
-            self.cpu_type = cpu_parts[0]
-            self.cpu_model = cpu_parts[1] + cpu_parts[2]
+            self.hw_type = hw_parts[0]
+            self.hw_model = hw_parts[1] + hw_parts[2]
 
         ###FIXME###
         # Total memory
+        self.ram_size = 'N/A'
         # SD card size
-
+        self.storage_size = 'N/A'
 
 # Gather software information
 class OSInfo:
@@ -273,8 +277,8 @@ class SystemInfoTags(SearchList):
     def osinfo(self):
         return OSInfo()
 
-    def cpuinfo(self):
-        return CPUInfo()
+    def hwinfo(self):
+        return HWInfo()
 
     def prevday(self):
         return self.getvals(1)
