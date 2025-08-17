@@ -1,5 +1,8 @@
 # Change Log
 
+## v1.1 - 17 August 2025
+- Gather initial HW and OS info
+
 ## v1.0 - 16 July 2025
 - Update CHANGELOG, README
 - Update to v1.0

@@ -9,7 +9,7 @@ def loader():
 class SystemInfoInstaller(ExtensionInstaller):
     def __init__(self):
         super(SystemInfoInstaller, self).__init__(
-            version="1.0",
+            version="1.1",
             name='sysinfo',
             description='Collect and display system information.',
             author="Bill Madill",
