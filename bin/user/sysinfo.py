@@ -67,7 +67,7 @@ import datetime
 from weewx.tags import TimespanBinder
 from weeutil.weeutil import TimeSpan
 
-VERSION = "1.0"
+VERSION = "1.1"
 
 log = logging.getLogger(__name__)
 
